@@ -3,6 +3,7 @@ package com.spear;
 import com.vaadin.server.Page;
 import com.vaadin.shared.ui.colorpicker.Color;
 import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.ColorPicker;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
@@ -55,13 +56,13 @@ public class WordBlockWindow extends Window {
 
         HorizontalLayout horizontalLayout = new HorizontalLayout(colorPicker, lineSpacing);
         horizontalLayout.setSpacing(true);
-        VerticalLayout verticalLayout = new VerticalLayout(horizontalLayout, label);
+        VerticalLayout verticalLayout = new VerticalLayout(horizontalLayout, label, new Button("Close", (event) -> this.close()));
         verticalLayout.setMargin(true);
         this.setContent(verticalLayout);
         this.setDraggable(true);
         this.setResizable(true);
-        this.setModal(false);
-        this.setWidth("70%");
+        this.setModal(true);
+        this.setWidth("100%");
         this.setCaption("Helper");
 
         Page.Styles styles = Page.getCurrent().getStyles();

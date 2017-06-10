@@ -1557,6 +1557,39 @@ div.v-layout.v-horizontal.v-widget {
 	vertical-align: top;
 }
 
+.mytheme {
+	@media only screen and (width:320px) and (device-width:320px) and (device-height:480px) and (orientation: landscape) {
+	body {
+		-webkit-transform: scale(0.667);
+		-webkit-transform-origin: top right;
+		position: absolute;
+		right: 0;
+		top: 0;
+		width: 480px;
+	}
+}
+	@media only screen and (width:320px) and (device-width:320px) and (device-height:568px) and (orientation: landscape) {
+	body {
+		-webkit-transform: scale(0.667);
+		-webkit-transform-origin: top right;
+		position: absolute;
+		right: 0;
+		top: 0;
+		width: 568px;
+	}
+}
+	@media only screen and (width:768px) and (device-width:768px) and (device-height:1024px) and (orientation: landscape) {
+	body {
+		-webkit-transform: scale(0.75);
+		-webkit-transform-origin: top right;
+		position: absolute;
+		right: 0;
+		top: 0;
+		width: 1024px;
+	}
+}
+}
+
 .mytheme.v-app, .mytheme.v-app-loading {
 	font: 300 16px/1.55 "Open Sans", sans-serif;
 	color: #464646;

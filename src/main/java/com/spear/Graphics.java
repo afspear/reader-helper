@@ -22,10 +22,10 @@ public class Graphics {
             graphics = bImageFromConvert.createGraphics();
 
 
-        float alpha = 0.5f;
+        float alpha = 0.6f;
         Color color = new Color(1, 0, 0, alpha); //Red
         graphics.setPaint(color);
-            graphics.setStroke(new BasicStroke(3));
+            graphics.setStroke(new BasicStroke(5));
 
     }
 

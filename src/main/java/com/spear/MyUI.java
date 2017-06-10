@@ -1,6 +1,7 @@
 package com.spear;
 
 import javax.imageio.ImageIO;
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 
 import com.ejt.vaadin.sizereporter.ComponentResizeEvent;
@@ -9,8 +10,13 @@ import com.ejt.vaadin.sizereporter.SizeReporter;
 import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
+import com.vaadin.server.BootstrapFragmentResponse;
+import com.vaadin.server.BootstrapListener;
+import com.vaadin.server.BootstrapPageResponse;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.Page;
+import com.vaadin.server.SessionInitEvent;
+import com.vaadin.server.SessionInitListener;
 import com.vaadin.server.StreamResource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
@@ -69,7 +75,7 @@ public class MyUI extends UI {
         final VerticalLayout layout = new VerticalLayout();
         image.setSource(null);
         
-        name.setStyleName(ValoTheme.LABEL_H1);
+        name.setStyleName(ValoTheme.LABEL_LARGE);
 
         final UploadField uploadField = new UploadField();
         uploadField.setDisplayUpload(false);
@@ -120,7 +126,7 @@ public class MyUI extends UI {
     private void showUploadedImage(Object value) {
         final byte[] data = (byte[]) value;
 
-        image.setSource(new ExternalResource("https://media.tenor.com/images/830916aebd7ccf32319d04d5c5d48f6b/tenor.gif"));
+        image.setSource(new ExternalResource("https://upload.wikimedia.org/wikipedia/commons/f/f5/Blender3D_KolbenZylinderAnimation.gif"));
         image.setVisible(true);
 
         new Thread(() -> {
@@ -189,6 +195,71 @@ public class MyUI extends UI {
     @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
     @VaadinServletConfiguration(ui = MyUI.class, productionMode = false)
     public static class MyUIServlet extends VaadinServlet {
+        @Override
+        protected void servletInitialized() throws ServletException {
+            super.servletInitialized();
+            getService().addSessionInitListener(new SessionInitListener() {
+
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public void sessionInit(SessionInitEvent event) {
+                    event.getSession()
+                      .addBootstrapListener(new BootstrapListener() {
+
+                          private static final long serialVersionUID = 1L;
+
+                          @Override
+                          public void modifyBootstrapFragment(BootstrapFragmentResponse response) {
+                              // TODO Auto-generated method stub
+
+                          }
+
+                          @Override
+                          public void modifyBootstrapPage(BootstrapPageResponse response) {
+
+                              // Meta
+
+                              response.getDocument()
+                                .head()
+                                .prependElement("meta")
+                                .attr("name", "viewport")
+                                .attr("content", "user-scalable=no; width=device-width, initial-scale=1.0, maximum-scale=1");
+                              response.getDocument()
+                                .head()
+                                .prependElement("meta")
+                                .attr("name", "apple-mobile-web-app-capable")
+                                .attr("content", "yes");
+                              response.getDocument()
+                                .head()
+                                .prependElement("meta")
+                                .attr("name", "mobileoptimized")
+                                .attr("content", "0");
+
+                              response.getDocument()
+                                .head()
+                                .prependElement("link")
+                                .attr("rel", "apple-touch-icon")
+                                .attr("sizes", "57x57")
+                                .attr("href", "/VAADIN/themes/mytheme/img/appIcon.jpg");
+
+
+                              if (response.getRequest()
+                                .getHeader("User-Agent")
+                                .contains("IEMobile/10.0")) {
+                                  response.getDocument()
+                                    .head()
+                                    .prependElement("style")
+                                    .attr("type", "text/css")
+                                    .append("@-ms-viewport{width:auto!important}");
+                              }
+
+                          }
+                      });
+
+                }
+            });
+        }
     }
 
 
