@@ -78,9 +78,14 @@ public class OCR {
     }
 
     public static void consumeAllBlockPolygons(String json, Consumer<Pair<Polygon, String>> polygonConsumer) {
-
+        ReadContext ctx;
         String findBlocks = "$.responses[0].fullTextAnnotation.pages[0].blocks";
-        ReadContext ctx = JsonPath.parse(json);
+        try {
+            ctx = JsonPath.parse(json);
+        }
+        catch (Exception e) {
+            throw e;
+        }
         Integer numberOfBlocks = ctx.read(findBlocks +".length()");
         IntStream.range(0, numberOfBlocks)
           .forEach(block -> {

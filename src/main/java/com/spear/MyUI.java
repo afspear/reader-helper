@@ -134,40 +134,43 @@ public class MyUI extends UI {
             String ocrData = OCR.readImage(data);
             try{
 
-            Graphics graphics =  new Graphics(data);
-            wordBlocks = new WordBlocks(graphics.getHeight(), graphics.getWidth());
+                Graphics graphics =  new Graphics(data);
+                wordBlocks = new WordBlocks(graphics.getHeight(), graphics.getWidth());
 
-            OCR.consumeAllBlockPolygons(ocrData, polygonStringMap -> {
-                graphics.drawPolygon(polygonStringMap.getKey());
-                wordBlocks.addWordBlock(polygonStringMap.getKey(), polygonStringMap.getValue());
-            });
+                OCR.consumeAllBlockPolygons(ocrData, polygonStringMap -> {
+                    graphics.drawPolygon(polygonStringMap.getKey());
+                    wordBlocks.addWordBlock(polygonStringMap.getKey(), polygonStringMap.getValue());
+                });
 
 
-            graphics.dispose();
+                graphics.dispose();
 
-            // Return a stream from the buffer
-            MyUI.getCurrent().access(() -> {
-                name.setValue("See if this helps...");
-                doAnother.setVisible(true);
-                image.setSource(createStreamResource(graphics.getbImageFromConvert()));
-                panel.addClickListener(event -> {
-                    double percentX = (double) event.getRelativeX() / (double) panelWidth.get();
-                    double percentY = (double) event.getRelativeY() / (double) panelHeight.get();
+                // Return a stream from the buffer
+                MyUI.getCurrent().access(() -> {
+                    name.setValue("See if this helps...");
+                    doAnother.setVisible(true);
+                    image.setSource(createStreamResource(graphics.getbImageFromConvert()));
+                    panel.addClickListener(event -> {
+                        double percentX = (double) event.getRelativeX() / (double) panelWidth.get();
+                        double percentY = (double) event.getRelativeY() / (double) panelHeight.get();
 
-                    if (wordBlocks !=null) {
-                        String text = wordBlocks.getTextForPoint(percentX, percentY);
-                        if (StringUtils.isBlank(text))
-                            return;
-                        this.addWindow(new WordBlockWindow(text));
-                    }
+                        if (wordBlocks !=null) {
+                            String text = wordBlocks.getTextForPoint(percentX, percentY);
+                            if (StringUtils.isBlank(text))
+                                return;
+                            this.addWindow(new WordBlockWindow(text));
+                        }
 
+
+                    });
 
                 });
 
-            });
-
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                MyUI.this.getUI().access(() -> {
+                    name.setValue("Oops. Something went wrong. Try another.");
+                    doAnother.setVisible(false);
+                });
             }
 
 
