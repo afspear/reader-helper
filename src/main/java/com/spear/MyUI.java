@@ -35,6 +35,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 import org.apache.commons.lang3.StringUtils;
 import org.vaadin.easyuploads.UploadField;
+import org.vaadin.googleanalytics.tracking.GoogleAnalyticsTracker;
 
 import java.awt.Graphics2D;
 import java.awt.Color;
@@ -62,22 +63,30 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MyUI extends UI {
 
     Image image = new Image();
-    final Label name = new Label("Give me a photo of a page, and I may can help...");
+    final Label name = new Label("Upload a photo of a page. (One page of printed text works the best!) When you see the image, click on the red squares to see the text inside the square.");
     Panel panel = new Panel(image);
-    Button doAnother = new Button("Do Another");
 
     AtomicInteger panelWidth = new AtomicInteger();
     AtomicInteger panelHeight = new AtomicInteger();
     private WordBlocks wordBlocks;
+    final UploadField uploadField = new UploadField();
+
+    private enum GA_CATEGORY{photo}
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
+        GoogleAnalyticsTracker tracker = new GoogleAnalyticsTracker(System.getenv("ga_key"), "reader-helper.herokuapp.com");
+
+
+        tracker.extend(this);
+
         final VerticalLayout layout = new VerticalLayout();
+        panel.setSizeFull();
         image.setSource(null);
         
         name.setStyleName(ValoTheme.LABEL_LARGE);
 
-        final UploadField uploadField = new UploadField();
+
         uploadField.setDisplayUpload(false);
         uploadField.setButtonCaption("Choose Photo of Page");
         uploadField.setFieldType(UploadField.FieldType.BYTE_ARRAY);
@@ -91,15 +100,15 @@ public class MyUI extends UI {
                 name.setValue("That was a " + mime.split("/")[1] + ". I actually need a photo.");
                 return;
             }
+
             System.out.println(uploadField.getLastFileName());
 
-            layout.removeComponent(uploadField);
             showUploadedImage(value);
 
         });
 
         image.setVisible(false);
-        image.setSizeFull();
+
 
         SizeReporter sizeReporter = new SizeReporter(panel);
         sizeReporter.addResizeListener((ComponentResizeListener)event -> {
@@ -107,16 +116,7 @@ public class MyUI extends UI {
             panelHeight.set(event.getHeight());
         });
 
-
-
-        doAnother.setVisible(false);
-        doAnother.addClickListener(event -> Page.getCurrent().reload());
-        HorizontalLayout horizontalLayout = new HorizontalLayout(name, doAnother);
-        horizontalLayout.setWidth("100%");
-        horizontalLayout.setExpandRatio(name, 1.0f);
-        horizontalLayout.setComponentAlignment(doAnother, Alignment.MIDDLE_RIGHT);
-
-        layout.addComponents(horizontalLayout,uploadField, panel);
+        layout.addComponents(name,uploadField, new VerticalLayout(panel));
         layout.setMargin(true);
         layout.setSpacing(true);
         
@@ -128,6 +128,7 @@ public class MyUI extends UI {
 
         image.setSource(new ExternalResource("https://upload.wikimedia.org/wikipedia/commons/f/f5/Blender3D_KolbenZylinderAnimation.gif"));
         image.setVisible(true);
+        image.setWidth("50%");
 
         new Thread(() -> {
 
@@ -147,9 +148,9 @@ public class MyUI extends UI {
 
                 // Return a stream from the buffer
                 MyUI.getCurrent().access(() -> {
-                    name.setValue("See if this helps...");
-                    doAnother.setVisible(true);
+                    name.setValue("Click on the red squares.");
                     image.setSource(createStreamResource(graphics.getbImageFromConvert()));
+                    image.setSizeFull();
                     panel.addClickListener(event -> {
                         double percentX = (double) event.getRelativeX() / (double) panelWidth.get();
                         double percentY = (double) event.getRelativeY() / (double) panelHeight.get();
@@ -169,7 +170,7 @@ public class MyUI extends UI {
             } catch (Exception e) {
                 MyUI.this.getUI().access(() -> {
                     name.setValue("Oops. Something went wrong. Try another.");
-                    doAnother.setVisible(false);
+
                 });
             }
 
