@@ -65,6 +65,8 @@ public class MyUI extends UI {
     Image image = new Image();
     final Label name = new Label("Upload a photo of a page. (One page of printed text works the best!) When you see the image, click on the red squares to see the text inside the square.");
     Panel panel = new Panel(image);
+    String ga_key = System.getenv("ga_key");
+    GoogleAnalyticsTracker tracker = new GoogleAnalyticsTracker(ga_key);
 
     AtomicInteger panelWidth = new AtomicInteger();
     AtomicInteger panelHeight = new AtomicInteger();
@@ -75,11 +77,11 @@ public class MyUI extends UI {
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
-        GoogleAnalyticsTracker tracker = new GoogleAnalyticsTracker(System.getenv("ga_key"), "reader-helper.herokuapp.com");
 
+        System.out.println("Using ga key:" + ga_key);
 
         tracker.extend(this);
-
+        tracker.trackPageview("/main");
         final VerticalLayout layout = new VerticalLayout();
         panel.setSizeFull();
         image.setSource(null);
@@ -104,6 +106,7 @@ public class MyUI extends UI {
             System.out.println(uploadField.getLastFileName());
 
             showUploadedImage(value);
+            tracker.trackPageview("/main/photo-upload");
 
         });
 
@@ -148,6 +151,7 @@ public class MyUI extends UI {
 
                 // Return a stream from the buffer
                 MyUI.getCurrent().access(() -> {
+                    tracker.trackPageview("/main/view-ocr");
                     name.setValue("Click on the red squares.");
                     image.setSource(createStreamResource(graphics.getbImageFromConvert()));
                     image.setSizeFull();
@@ -160,6 +164,7 @@ public class MyUI extends UI {
                             if (StringUtils.isBlank(text))
                                 return;
                             this.addWindow(new WordBlockWindow(text));
+                            tracker.trackPageview("/main/view-text");
                         }
 
 
