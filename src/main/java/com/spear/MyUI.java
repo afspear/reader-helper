@@ -20,6 +20,7 @@ import com.vaadin.server.SessionInitListener;
 import com.vaadin.server.StreamResource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
+import com.vaadin.server.communication.AtmospherePushConnection;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
@@ -34,6 +35,7 @@ import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 import org.apache.commons.lang3.StringUtils;
+import org.pmw.tinylog.Logger;
 import org.vaadin.easyuploads.UploadField;
 import org.vaadin.googleanalytics.tracking.GoogleAnalyticsTracker;
 
@@ -135,6 +137,8 @@ public class MyUI extends UI {
 
         new Thread(() -> {
 
+
+
             String ocrData = OCR.readImage(data);
             try{
 
@@ -206,6 +210,7 @@ public class MyUI extends UI {
     public static class MyUIServlet extends VaadinServlet {
         @Override
         protected void servletInitialized() throws ServletException {
+            AtmospherePushConnection.enableAtmosphereDebugLogging();
             super.servletInitialized();
             getService().addSessionInitListener(new SessionInitListener() {
 
