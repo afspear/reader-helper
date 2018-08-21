@@ -35,6 +35,7 @@
   @include valo;
 
   // Insert your own theme rules here
+
   /* iPhone */
   @media only screen and (width:320px) and (device-width:320px) and (device-height:480px) and (orientation: landscape) {
     body {
@@ -68,5 +69,12 @@
       top: 0;
       width: 1024px;
     }
+  }
+  .upload-with-icon .v-button:before {
+    content: "\25AE";  /* this is your text. You can also use UTF-8 character codes as I do here */
+    font-family: FontAwesome;
+    left:-5px;
+    position:absolute;
+    top:0;
   }
 }

@@ -1,10 +1,12 @@
-FROM tomcat:9
+FROM jetty:jre8
 
-RUN rm -rf /usr/local/tomcat/webapps/ROOT
+RUN rm -rf /var/lib/jetty/webapps/ROOT
 
-COPY target/reader-helper-1.0-SNAPSHOT.war /usr/local/tomcat/webapps/ROOT.war
+COPY target/reader-helper-1.0-SNAPSHOT.war /var/lib/jetty/webapps/ROOT.war
+
+COPY ReaderHelper-53a7a7a3d474.json /var/lib/jetty/ReaderHelper-53a7a7a3d474.json
 
 #for running on heroku
 
-CMD echo setting port to $PORT && sed -i -e 's/8080/'"$PORT"'/' $CATALINA_HOME/conf/server.xml  && catalina.sh run
+CMD java -jar /usr/local/jetty/start.jar jetty.http.port=$PORT
 

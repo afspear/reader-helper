@@ -95,12 +95,20 @@ public class OCR {
               jsonArray.forEach(o -> {
                   Integer x = (Integer)((Map)o).get("x");
                   Integer y = (Integer)((Map)o).get("y");
+                  if(x == null || y == null)
+                      return;
                   xPoints.add(x);
                   yPoints.add(y);
               });
 
-              int[] xArray = xPoints.stream().mapToInt(i -> i).toArray();
-              int[] yArray = yPoints.stream().mapToInt(i -> i).toArray();
+              int[] xArray = xPoints.stream()
+
+                      .mapToInt(i -> i)
+                      .toArray();
+              int[] yArray = yPoints.stream()
+
+                      .mapToInt(i -> i)
+                      .toArray();
 
               Polygon polygon = new Polygon(xArray, yArray, xArray.length);
 
@@ -119,7 +127,7 @@ public class OCR {
                       });
                       paragraphJoiner.add(wordBuilder.toString());
                   });
-                  paragraphJoiner.add("\n");
+                  //paragraphJoiner.add("\n");
               });
 
               String wordBlock = paragraphJoiner.toString();

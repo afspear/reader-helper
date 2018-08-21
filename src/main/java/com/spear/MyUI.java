@@ -10,16 +10,8 @@ import com.ejt.vaadin.sizereporter.SizeReporter;
 import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
-import com.vaadin.server.BootstrapFragmentResponse;
-import com.vaadin.server.BootstrapListener;
-import com.vaadin.server.BootstrapPageResponse;
-import com.vaadin.server.ExternalResource;
-import com.vaadin.server.Page;
-import com.vaadin.server.SessionInitEvent;
-import com.vaadin.server.SessionInitListener;
-import com.vaadin.server.StreamResource;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinServlet;
+import com.vaadin.event.MouseEvents;
+import com.vaadin.server.*;
 import com.vaadin.server.communication.AtmospherePushConnection;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -35,7 +27,6 @@ import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 import org.apache.commons.lang3.StringUtils;
-import org.pmw.tinylog.Logger;
 import org.vaadin.easyuploads.UploadField;
 import org.vaadin.googleanalytics.tracking.GoogleAnalyticsTracker;
 
@@ -48,9 +39,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -65,7 +54,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MyUI extends UI {
 
     Image image = new Image();
-    final Label name = new Label("Upload a photo of a page. (One page of printed text works the best!) When you see the image, click on the red squares to see the text inside the square.");
+    final Label name = new Label("Hello. This is Reader Helper.");
     Panel panel = new Panel(image);
     String ga_key = System.getenv("ga_key");
     GoogleAnalyticsTracker tracker = new GoogleAnalyticsTracker(ga_key);
@@ -74,11 +63,17 @@ public class MyUI extends UI {
     AtomicInteger panelHeight = new AtomicInteger();
     private WordBlocks wordBlocks;
     final UploadField uploadField = new UploadField();
+    Panel imagePanel = new Panel(panel);
+
+    List<MouseEvents.ClickListener> panelListeners = new ArrayList<>();
+    private VerticalLayout imageLayout;
 
     private enum GA_CATEGORY{photo}
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
+
+
 
         System.out.println("Using ga key:" + ga_key);
 
@@ -88,17 +83,19 @@ public class MyUI extends UI {
         panel.setSizeFull();
         image.setSource(null);
         
-        name.setStyleName(ValoTheme.LABEL_LARGE);
+        name.setStyleName(ValoTheme.LABEL_HUGE);
+        imagePanel.setVisible(false);
 
 
+
+       uploadField.setButtonCaption("Take a photo.");
         uploadField.setDisplayUpload(false);
-        uploadField.setButtonCaption("Choose Photo of Page");
         uploadField.setFieldType(UploadField.FieldType.BYTE_ARRAY);
 
         uploadField.addValueChangeListener(valueChangeEvent -> {
             Object value = valueChangeEvent.getProperty().getValue();
-            name.setValue("Got it. Let me see what i can do. Sit tight...");
-            System.out.println();
+            name.setValue("One Sec...");
+            imagePanel.setVisible(false);
             String mime = uploadField.getLastMimeType();
             if (!mime.contains("image")) {
                 name.setValue("That was a " + mime.split("/")[1] + ". I actually need a photo.");
@@ -112,7 +109,7 @@ public class MyUI extends UI {
 
         });
 
-        image.setVisible(false);
+
 
 
         SizeReporter sizeReporter = new SizeReporter(panel);
@@ -120,8 +117,34 @@ public class MyUI extends UI {
             panelWidth.set(event.getWidth());
             panelHeight.set(event.getHeight());
         });
+        Button smallerButton = new Button(FontAwesome.MINUS);
+        smallerButton.addClickListener(clickEvent -> {
+            float width = panel.getWidth();
+            Unit units = panel.getWidthUnits();
+            panel.setWidth(width - 10, units);
 
-        layout.addComponents(name,uploadField, new VerticalLayout(panel));
+
+        });
+
+        Button biggerButton = new Button(FontAwesome.PLUS);
+        biggerButton.addClickListener(
+        clickEvent -> {
+            float width = panel.getWidth();
+            Unit units = panel.getWidthUnits();
+            panel.setWidth(width + 10, units);
+
+
+        });
+
+
+
+
+        imageLayout = new VerticalLayout(new HorizontalLayout(biggerButton, smallerButton),imagePanel);
+        imageLayout.setVisible(false);
+
+
+
+        layout.addComponents(name,uploadField, imageLayout );
         layout.setMargin(true);
         layout.setSpacing(true);
         
@@ -131,9 +154,12 @@ public class MyUI extends UI {
     private void showUploadedImage(Object value) {
         final byte[] data = (byte[]) value;
 
+        panelListeners.forEach(clickListener -> panel.removeClickListener(clickListener));
+        panelListeners.clear();
+
         image.setSource(new ExternalResource("https://upload.wikimedia.org/wikipedia/commons/f/f5/Blender3D_KolbenZylinderAnimation.gif"));
-        image.setVisible(true);
-        image.setWidth("50%");
+        imageLayout.setVisible(true);
+
 
         new Thread(() -> {
 
@@ -155,24 +181,35 @@ public class MyUI extends UI {
 
                 // Return a stream from the buffer
                 MyUI.getCurrent().access(() -> {
+
                     tracker.trackPageview("/main/view-ocr");
-                    name.setValue("Click on the red squares.");
+                    name.setValue("Click or touch inside the red squares.");
                     image.setSource(createStreamResource(graphics.getbImageFromConvert()));
                     image.setSizeFull();
-                    panel.addClickListener(event -> {
+                    imagePanel.setVisible(true);
+
+                    MouseEvents.ClickListener clickListener = (event -> {
                         double percentX = (double) event.getRelativeX() / (double) panelWidth.get();
                         double percentY = (double) event.getRelativeY() / (double) panelHeight.get();
 
                         if (wordBlocks !=null) {
                             String text = wordBlocks.getTextForPoint(percentX, percentY);
+                            String url = wordBlocks.getFileUrlForPoint(percentX, percentY);
+
                             if (StringUtils.isBlank(text))
                                 return;
-                            this.addWindow(new WordBlockWindow(text));
+                            WordBlockWindow wordBlockWindow = new WordBlockWindow(text,url);
+                            wordBlockWindow.setModal(false);
+                            wordBlockWindow.setWidth("75%");
+                            this.addWindow(wordBlockWindow);
                             tracker.trackPageview("/main/view-text");
                         }
 
 
                     });
+
+                    panel.addClickListener(clickListener);
+                    panelListeners.add(clickListener);
 
                 });
 
@@ -181,6 +218,7 @@ public class MyUI extends UI {
                     name.setValue("Oops. Something went wrong. Try another.");
 
                 });
+                e.printStackTrace();
             }
 
 
@@ -210,7 +248,7 @@ public class MyUI extends UI {
     public static class MyUIServlet extends VaadinServlet {
         @Override
         protected void servletInitialized() throws ServletException {
-            AtmospherePushConnection.enableAtmosphereDebugLogging();
+            //AtmospherePushConnection.enableAtmosphereDebugLogging();
             super.servletInitialized();
             getService().addSessionInitListener(new SessionInitListener() {
 
@@ -256,6 +294,14 @@ public class MyUI extends UI {
                                 .attr("rel", "apple-touch-icon")
                                 .attr("sizes", "57x57")
                                 .attr("href", "/VAADIN/themes/mytheme/img/appIcon.jpg");
+
+                              Fonts.fonts.forEach(font -> {
+                                  response.getDocument()
+                                          .head()
+                                          .prependElement("link")
+                                          .attr("href", "https://fonts.googleapis.com/css?family=" +font)
+                                          .attr("rel", "stylesheet");
+                              });
 
 
                               if (response.getRequest()

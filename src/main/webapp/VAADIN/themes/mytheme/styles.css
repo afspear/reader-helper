@@ -1557,6 +1557,24 @@ div.v-layout.v-horizontal.v-widget {
 	vertical-align: top;
 }
 
+@font-face {
+	font-family: "OpenDyslexic";
+	font-weight: normal;
+	font-style: normal;
+	src: url(../valo/util/bourbon/css3/../../../../../themes/mytheme/fonts/OpenDyslexic-Regular.eot);
+	src: url(../valo/util/bourbon/css3/../../../../../themes/mytheme/fonts/OpenDyslexic-Regular.eot?#iefix) format("embedded-opentype"), url(../valo/util/bourbon/css3/../../../../../themes/mytheme/fonts/OpenDyslexic-Regular.woff) format("woff"), url(../valo/util/bourbon/css3/../../../../../themes/mytheme/fonts/OpenDyslexic-Regular.ttf) format("truetype"), url(../valo/util/bourbon/css3/../../../../../themes/mytheme/fonts/OpenDyslexic-Regular.svg#OpenDyslexic) format("svg");
+}
+
+.OpenDyslexic {
+	font-family: OpenDyslexic;
+	font-style: normal;
+	font-weight: normal;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	display: inline-block;
+	text-align: center;
+}
+
 .mytheme {
 	@media only screen and (width:320px) and (device-width:320px) and (device-height:480px) and (orientation: landscape) {
 	body {
@@ -13016,4 +13034,12 @@ div.v-layout.v-horizontal.v-widget {
 	display: inline-block;
 	width: 19px;
 	overflow: hidden;
+}
+
+.mytheme .upload-with-icon .v-button:before {
+	content: "\25AE";
+	font-family: FontAwesome;
+	left: -5px;
+	position: absolute;
+	top: 0;
 }
