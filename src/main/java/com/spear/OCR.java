@@ -127,10 +127,13 @@ public class OCR {
                       });
                       paragraphJoiner.add(wordBuilder.toString());
                   });
-                  //paragraphJoiner.add("\n");
+
               });
 
               String wordBlock = paragraphJoiner.toString();
+            System.out.println("Original string: " + wordBlock);
+            wordBlock = Punctuation.fix(wordBlock);
+            System.out.println("Fixed string: " + wordBlock);
 
               polygonConsumer.accept(Pair.of(polygon, wordBlock));
 

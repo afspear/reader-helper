@@ -121,14 +121,20 @@ public class WordBlockWindow extends Window {
         sample.setHtmlContentAllowed(true);
         sample.setAltText("Can't play media");
 
-        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        CssLayout cssLayout = new CssLayout() {
+            @Override
+            protected String getCss(Component c) {
+                return "margin:5px;";
+            }
+        };
 
 
+        cssLayout.addComponents( sample,new VerticalLayout(colorPicker,textColorPicker), new VerticalLayout(letterSpacing, letterSize), new VerticalLayout(lineHeight, fontStyle));
+        cssLayout.forEach(component -> {
+            component.setWidthUndefined();
+        });
 
-        horizontalLayout.addComponents( sample,new VerticalLayout(colorPicker,textColorPicker), new VerticalLayout(letterSpacing, letterSize), new VerticalLayout(lineHeight, fontStyle));
-
-        horizontalLayout.setSpacing(true);
-        VerticalLayout verticalLayout = new VerticalLayout(horizontalLayout, label, new Button("Close", (event) -> this.close()));
+        VerticalLayout verticalLayout = new VerticalLayout(cssLayout, label, new Button("Close", (event) -> this.close()));
         verticalLayout.setMargin(true);
         this.setContent(verticalLayout);
         this.setDraggable(true);
