@@ -129,12 +129,14 @@ public class WordBlockWindow extends Window {
         };
 
 
-        cssLayout.addComponents( sample,new VerticalLayout(colorPicker,textColorPicker), new VerticalLayout(letterSpacing, letterSize), new VerticalLayout(lineHeight, fontStyle));
+        cssLayout.addComponents( new VerticalLayout(colorPicker,textColorPicker), new VerticalLayout(letterSpacing, letterSize), new VerticalLayout(lineHeight, fontStyle));
         cssLayout.forEach(component -> {
             component.setWidthUndefined();
         });
 
-        VerticalLayout verticalLayout = new VerticalLayout(cssLayout, label, new Button("Close", (event) -> this.close()));
+        CollapseView collapseView = new CollapseView("Format", cssLayout);
+
+        VerticalLayout verticalLayout = new VerticalLayout(sample,collapseView, label, new Button("Close", (event) -> this.close()));
         verticalLayout.setMargin(true);
         this.setContent(verticalLayout);
         this.setDraggable(true);
