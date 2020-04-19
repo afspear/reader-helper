@@ -1,0 +1,20 @@
+.vid {
+  height: 100%;
+}
+
+video {
+  width: auto;
+}
+
+.camera {
+  color: red;
+}
+
+.wrapper {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  // inexplicable/unknown extra space is rendered, causing scrollbars to show up
+  overflow: hidden;
+}

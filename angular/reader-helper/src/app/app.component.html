@@ -1,0 +1,24 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <app-photo-upload (imageDataUrlEvent)='onImage($event)'></app-photo-upload>
+</nav><div class="container vh-100">
+
+
+  <div >
+    <maphilight
+
+    id="wordmap"
+    [config]="config"
+
+  >
+  <img *ngIf="imageBase64 && imageBase64.length > 0" src="{{'data:image/jpg;base64,' + imageBase64}}" usemap="#wordmap"/>
+  <map *ngIf="imageBase64 && imageBase64.length > 0" id="wordmap" name="wordmap">
+    <area *ngFor="let area of areas" shape="poly" coords={{area.coords}} alt={{area.alt}} (click)='show(area)'>
+  </map>
+    </maphilight>
+
+  </div>
+  <h1 *ngIf='selectedArea'>{{selectedArea.alt}}</h1>
+
+
+
+</div>

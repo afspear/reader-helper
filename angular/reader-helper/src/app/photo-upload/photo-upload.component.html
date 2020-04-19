@@ -1,0 +1,32 @@
+<ng-template #content let-modal>
+
+  <div class="card modal-body">
+    <webcam class="wrapper card-img" [height]="400" [width]="800" [trigger]="triggerObservable" (imageCapture)="handleImage($event)" *ngIf="showWebcam"
+     [switchCamera]="nextWebcamObservable"
+
+    [imageQuality]="1"
+    (cameraSwitched)="cameraWasSwitched($event)"
+    (initError)="handleInitError($event)"
+></webcam>
+<div class="card-img-overlay d-flex flex-column">
+
+  <div>
+    <button class="btn float-right" (click)="showNextWebcam(true);" [disabled]="!multipleWebcamsAvailable">
+      <i class="material-icons">flip_camera_android</i>
+    </button>
+  </div>
+
+  <button class="btn mt-auto" (click)="this.triggerSnapshot();">
+    <i class="material-icons camera">camera</i>
+  </button>
+
+</div>
+
+  </div>
+</ng-template>
+
+<button class="btn btn-lg btn-outline-primary" (click)="open(content)">Take photo</button>
+
+
+
+
