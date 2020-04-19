@@ -5,7 +5,8 @@
 // Defines the plaintext font size, weight and family. Font size affects general component sizing.
 //$v-font-size: 16px;
 //$v-font-weight: 300;
-//$v-font-family: "Open Sans", sans-serif;
+$v-font-family: "OpenDyslexic";
+
 
 // Defines the border used by all components.
 //$v-border: 1px solid (v-shade 0.7);
@@ -70,11 +71,5 @@
       width: 1024px;
     }
   }
-  .upload-with-icon .v-button:before {
-    content: "\25AE";  /* this is your text. You can also use UTF-8 character codes as I do here */
-    font-family: FontAwesome;
-    left:-5px;
-    position:absolute;
-    top:0;
-  }
+
 }
